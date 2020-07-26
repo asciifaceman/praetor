@@ -59,8 +59,48 @@ def get(stream_id):
           type: string
           required: true
     responses:
-        200:
+        '200':
             description: A stream represented by json
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        description: Stream parameters
+                        properties:
+                            _id:
+                                type: string
+                                description: String representation of the streams bson.ObjectId
+                            url:
+                                type: string
+                                description: The streams master manifest
+                            name:
+                                type: string
+                            enabled:
+                                type: boolean
+                            tags:
+                                type: list
+                            polling_frequency:
+                                type: integer
+                            created_at:
+                                type: string
+            examples:
+                application/json: |
+                    {
+                    "_id": "5f1d5d6f292c273f182b9f72",
+                    "created_at": "2020-07-26 03:39:43.315395",
+                    "enabled": true,
+                    "name": "Streaming TV Live!",
+                    "polling_frequency": 30,
+                    "tags": [
+                        "bitdash",
+                        "blender",
+                        "hls",
+                        "vod"
+                    ],
+                    "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+                    }
+        404:
+            description: Not found
     """
     
     #with ClusterRpcProxy(config={"AMQP_URI":"pyamqp://user:password@127.0.0.1"}) as rpc:

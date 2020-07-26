@@ -1,8 +1,8 @@
 # Some basic stuff for interacting with nameko
 
-.PHONY: run
+.PHONY: shell run run-stream
 
-run:
+shell:
 	nameko shell --config nameko.yml
 
 run-stream:
