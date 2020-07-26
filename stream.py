@@ -13,8 +13,8 @@ class StreamService:
     storage = mongo.StreamStorage()
 
     @rpc
-    def hello(self, test):
-        return "Hello, {}!".format(test)
+    def ping(self):
+        return "pong"
     
     @rpc
     def get(self, stream_id):

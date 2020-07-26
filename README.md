@@ -2,7 +2,7 @@
 An attempt to "monitor" an HLS stream via some 
 analysis and rudimentary machine learning
 
-![Praetor](praetor.png)
+![Praetor](static/praetor.png)
 
 # Infra
 There is a docker-compose for development but no opinions have been made on production layout yet

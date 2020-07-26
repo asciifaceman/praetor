@@ -11,13 +11,60 @@ conf = {
 }
 config.setup(conf)
 
-@app.route('/stream', methods=['POST'])
-def create():
-    """Creates a new stream
+@app.route('/health', methods=['GET'])
+def health():
+    """Returns a basic overview of system health TODO Expand this
     ---
     responses:
         200:
-            description: A stream was successfully created
+            description: The API server is healthy. Payload contains health of underlying services
+    """
+
+    health = dict(
+        stream_service = False
+    )
+
+    with ClusterRpcProxy(conf) as rpc:
+        health['stream_service'] = (rpc.stream_service.ping() == "pong")
+
+        return health,200
+
+@app.route('/stream', methods=['POST'])
+def create():
+    """Creates a new stream NOT IMPLEMENTED
+    ---
+    parameters:
+        - in: body
+          name: stream
+          description: The stream to create
+          schema:
+            type: object
+            properties:
+                url:
+                    type: string
+                    example: https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8
+                    description: The streams master manifest
+                name:
+                    type: string
+                    example: "Bitdash Sintel VOD Example"
+                    description: The identifying name of the stream
+                enabled:
+                    type: boolean
+                    example: false
+                    description: Whether or not the stream is running checks
+                tags:
+                    type: array
+                    description: List of tags for searching/categorization
+                    example: ['sintel', 'akamai', 'vod']
+                    items:
+                        type: string
+                polling_frequency:
+                    description: Global frequency of runs for checks
+                    example: 60
+                    type: integer
+    responses:
+        200:
+            description: A stream was successfully created TODO Expand this
     """
 
     print("not")
@@ -32,10 +79,78 @@ def page():
         in: query
         required: false 
         type: string
-        description: Pagination token for next batch. From previous page.
+        description: Pagination token for next batch. From previous page. TODO Expand this
     responses:
         200:
             description: A page of streams represented by json
+            schema:
+                type: object
+                properties:
+                    data:
+                        type: array
+                        description: List of returned streams
+                        items:
+                            type: object
+                            description: A stream object
+                            properties:
+                                _id:
+                                    type: string
+                                    example: 5f1d5d6f292c273f182b9f72
+                                    description: String representation of the streams bson.ObjectId
+                                url:
+                                    type: string
+                                    example: https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8
+                                    description: The streams master manifest
+                                name:
+                                    type: string
+                                    example: "Bitdash Sintel VOD Example"
+                                    description: The identifying name of the stream
+                                enabled:
+                                    type: boolean
+                                    example: false
+                                    description: Whether or not the stream is running checks
+                                tags:
+                                    type: array
+                                    description: List of tags for searching/categorization
+                                    example: ['sintel', 'akamai', 'vod']
+                                    items:
+                                        type: string
+                                polling_frequency:
+                                    description: Global frequency of runs for checks
+                                    example: 60
+                                    type: integer
+                                created_at:
+                                    type: string
+                    next:
+                        type: string
+                        example: "5f1d5d6f292c273f182b9f72"
+                        description: Token for retrieving next page
+            examples:
+                application/json: |
+                    {
+                        "data": [{
+                            "_id": {
+                                "$oid": "5f1d5d6f292c273f182b9f72"
+                            },
+                            "enabled": true,
+                            "name": "Streaming TV! Live",
+                            "polling_frequency": 30,
+                            "created_at": "2020-07-26 03:39:43.315395",
+                            "tags": ["bitdash", "hls", "vod", "akamai"],
+                            "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+                        }, {
+                            "_id": {
+                                "$oid": "5f1d5d6f292c273f182b9f73"
+                            },
+                            "enabled": true,
+                            "name": "Apple Sample",
+                            "polling_frequency": 30,
+                            "created_at": "2020-07-26 03:39:43.380649",
+                            "tags": ["bipbopall", "hls", "apple"],
+                            "url": "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
+                        }],
+                        "next": "5f1d5d6f292c273f182b9f73"
+                    }
     """
     args = request.args
 
@@ -55,34 +170,44 @@ def get(stream_id):
     parameters:
         - name: stream_id
           description: The id of the stream to request
+          example: 5f1d5d6f292c273f182b9f72
           in: path
           type: string
           required: true
     responses:
         '200':
             description: A stream represented by json
-            content:
-                application/json:
-                    schema:
-                        type: object
-                        description: Stream parameters
-                        properties:
-                            _id:
-                                type: string
-                                description: String representation of the streams bson.ObjectId
-                            url:
-                                type: string
-                                description: The streams master manifest
-                            name:
-                                type: string
-                            enabled:
-                                type: boolean
-                            tags:
-                                type: list
-                            polling_frequency:
-                                type: integer
-                            created_at:
-                                type: string
+            schema:
+                type: object
+                description: Stream parameters
+                properties:
+                    _id:
+                        type: string
+                        description: String representation of the streams bson.ObjectId
+                    url:
+                        type: string
+                        example: https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8
+                        description: The streams master manifest
+                    name:
+                        type: string
+                        example: "Bitdash Sintel VOD Example"
+                        description: The identifying name of the stream
+                    enabled:
+                        type: boolean
+                        example: false
+                        description: Whether or not the stream is running checks
+                    tags:
+                        type: array
+                        description: List of tags for searching/categorization
+                        example: ['sintel', 'akamai', 'vod']
+                        items:
+                            type: string
+                    polling_frequency:
+                        description: Global frequency of runs for checks
+                        example: 60
+                        type: integer
+                    created_at:
+                        type: string
             examples:
                 application/json: |
                     {
