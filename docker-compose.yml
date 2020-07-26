@@ -1,0 +1,22 @@
+version: '3'
+services:
+    database:
+        image: 'mongo'
+        container_name: 'db'
+        environment:
+            - MONGO_INITDB_DATABASE=praetor
+            - MONGO_INITDB_ROOT_USERNAME=user
+            - MONGO_INITDB_ROOT_PASSWORD=secret
+        volumes:
+            - ./init.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+        ports:
+            - '27017-27019:27017-27019'
+    rabbitmq:
+        image: 'rabbitmq:3-management-alpine'
+        container_name: 'mq'
+        environment:
+            - RABBITMQ_DEFAULT_USER=user
+            - RABBITMQ_DEFAULT_PASS=password
+        ports:
+            - 5672:5672
+            - 15672:15672

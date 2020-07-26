@@ -1,0 +1,4 @@
+# Connection String
+AMQP_URI: pyamqp://${RABBITMQ_USER:user}:${RABBITMQ_PASSWORD:password}@${RABBITMQ_HOST:localhost}
+MONGODB_CONNECTION_STRING: mongodb://user:secret@localhost:27017/
+MAX_PAGINATION: 2
