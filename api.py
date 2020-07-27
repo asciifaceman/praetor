@@ -3,6 +3,9 @@ from flask import Flask, jsonify, request
 from nameko import config
 from nameko.standalone.rpc import ClusterRpcProxy
 
+from api_request_checks import (ArbitraryError400, CheckContentType,
+                                CheckDataContent)
+
 app = Flask(__name__)
 Swagger(app)
 
@@ -31,7 +34,7 @@ def health():
 
 @app.route('/stream', methods=['POST'])
 def create():
-    """Creates a new stream NOT IMPLEMENTED
+    """Creates a new stream
     ---
     parameters:
         - in: body
@@ -39,6 +42,7 @@ def create():
           description: The stream to create
           schema:
             type: object
+            required: true
             properties:
                 url:
                     type: string
@@ -63,12 +67,32 @@ def create():
                     example: 60
                     type: integer
     responses:
-        200:
+        201:
             description: A stream was successfully created TODO Expand this
+        400:
+            description: A malformed request was sent, did you set Content-Type?
+        500:
+            description: An internal error occured while processing the request
+        
     """
+    #dict(url="http://node00a.rebroadcast.wurl.com/8010/playlist.m3u8", name="EdgeSport Live", enabled=True, tags=['edgesport','hls','rebroadcast'])
 
-    print("not")
-    return "",200
+    
+    content_type = CheckContentType(request)
+    if content_type is not None:
+        return content_type
+
+    if not request.is_json:
+        return "not json?", 200 #TODO: Handle not json
+    data = request.json
+
+    with ClusterRpcProxy(conf) as rpc:
+        result = rpc.stream_service.create(data)
+
+        return result, 200
+
+    
+
 
 @app.route('/streams', methods=['GET'])
 def page():
@@ -77,7 +101,7 @@ def page():
     parameters:
       - name: next
         in: query
-        required: false 
+        required: false
         type: string
         description: Pagination token for next batch. From previous page. TODO Expand this
     responses:
@@ -232,5 +256,26 @@ def get(stream_id):
     with ClusterRpcProxy(conf) as rpc:
         result = rpc.stream_service.get(stream_id)
         return result, 200
+
+
+@app.route('/stream/<stream_id>', methods=['PATCH'])
+def patch(stream_id):
+    """Updates a single stream
+    ---
+    responses:
+        200:
+            description: Success
+    """
+    return None,501
+
+@app.route('/stream/<stream_id>', methods=['DELETE'])
+def delete(stream_id):
+    """Deletes the given stream
+    ---
+    responses:
+        200:
+            description: Delete success
+    """
+    return None,501
 
 app.run(debug=True)

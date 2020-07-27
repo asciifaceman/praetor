@@ -8,3 +8,5 @@ shell:
 run-stream:
 	nameko run stream --config nameko.yml
 
+run-check:
+	nameko run check --config nameko.yml

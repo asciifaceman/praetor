@@ -46,6 +46,7 @@ class StreamService:
 
     @rpc
     def create(self, stream):
+        print("Got stream: %s", str(stream))
         stream.update(created_at = str(datetime.datetime.now()))
         s = Stream().load(stream)
         r = self.storage.create(s)

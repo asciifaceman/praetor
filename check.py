@@ -2,6 +2,24 @@
 import urllib
 
 import requests
+from nameko.rpc import RpcProxy, rpc
+
+
+class CheckService:
+    name = "check_service"
+
+    @rpc
+    def ping(self):
+        return "pong"
+
+    @rpc
+    def HTTPStatusOk(self, url):
+        """Checks that a stream URL is accessible"""
+        r = requests.head(url,allow_redirects=True,verify=False)
+        return r.status_code
+
+
+
 
 #class CheckInterface:
 #
@@ -11,7 +29,7 @@ import requests
 #    def run():
 #        print("Running check")
 
-def GetStatus(url):
-    #r = urllib.urlopen(url).getcode()
-    r = requests.head(url,allow_redirects=True)
-    return r.status_code
+#def GetStatus(url):
+#    #r = urllib.urlopen(url).getcode()
+#    r = requests.head(url,allow_redirects=True)
+#    return r.status_code
