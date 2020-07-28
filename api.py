@@ -75,7 +75,6 @@ def create():
             description: An internal error occured while processing the request
         
     """
-    #dict(url="http://node00a.rebroadcast.wurl.com/8010/playlist.m3u8", name="EdgeSport Live", enabled=True, tags=['edgesport','hls','rebroadcast'])
 
     
     content_type = CheckContentType(request)
